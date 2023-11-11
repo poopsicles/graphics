@@ -1,34 +1,43 @@
+#![warn(clippy::pedantic)]
+#![warn(clippy::unwrap_used)]
+#![warn(clippy::nursery)]
 #![allow(non_snake_case)]
+#![allow(clippy::many_single_char_names)]
 
+#[must_use]
 pub fn dda(a: (f32, f32), b: (f32, f32)) -> Vec<(f32, f32)> {
     let Δx = b.0 - a.0;
     let Δy = b.1 - a.1;
     let m = Δy / Δx;
 
     let i = f32::max(f32::abs(Δx), f32::abs(Δy)).round();
-    let s = i as u32;
+    let s = unsafe { i.to_int_unchecked::<u16>() };
 
     let mut r = Vec::with_capacity(s as usize + 1);
     r.push(a);
 
-    if m <= 1.0 {
-        (1..=s)
-            .for_each(|x| r.push(((a.0 + x as f32).round(), (x as f32).mul_add(m, a.1).round())));
-    } else {
-        (1..=s).for_each(|x| r.push(((a.0 + x as f32 / m).round(), (a.1 + x as f32).round())));
-    };
+    (1..=s).for_each(|x| {
+        let x = f32::from(x);
+
+        if m <= 1.0 {
+            r.push(((a.0 + x).round(), x.mul_add(m, a.1).round()));
+        } else {
+            r.push(((a.0 + x / m).round(), (a.1 + x).round()));
+        }
+    });
 
     r
 }
 
+#[must_use]
 pub fn bresenham(a: (f32, f32), b: (f32, f32)) -> Vec<(f32, f32)> {
     let Δx = b.0 - a.0;
     let Δy = b.1 - a.1;
-    let s = Δx.round() as usize;
+    let s = unsafe { Δx.to_int_unchecked::<u16>() };
 
-    let mut r = Vec::with_capacity(s + 1);
+    let mut r = Vec::with_capacity(s as usize + 1);
     let mut x = a;
-    let mut p = 2.0 * Δy - Δx;
+    let mut p = 2.0f32.mul_add(Δy, -Δx);
 
     r.push(x);
 
@@ -37,7 +46,7 @@ pub fn bresenham(a: (f32, f32), b: (f32, f32)) -> Vec<(f32, f32)> {
             p += 2.0 * Δy;
             x = (x.0 + 1.0, x.1);
         } else {
-            p += (2.0 * Δy) - (2.0 * Δx);
+            p += 2.0f32.mul_add(Δy, -2.0 * Δx);
             x = (x.0 + 1.0, x.1 + 1.0);
         }
 
@@ -64,7 +73,7 @@ mod tests {
                 (8.0, 11.0),
                 (8.0, 12.0)
             ]
-        )
+        );
     }
 
     #[test]
@@ -84,7 +93,7 @@ mod tests {
                 (10.0, 16.0),
                 (11.0, 17.0)
             ]
-        )
+        );
     }
 
     #[test]
@@ -99,7 +108,7 @@ mod tests {
                 (13.0, 21.0),
                 (14.0, 22.0)
             ]
-        )
+        );
     }
 
     #[test]
@@ -119,6 +128,6 @@ mod tests {
                 (29.0, 17.0),
                 (30.0, 18.0)
             ]
-        )
+        );
     }
 }

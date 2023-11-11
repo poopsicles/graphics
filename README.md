@@ -14,3 +14,4 @@ also it's rainbow coloured because that's as much fun i could get out of it (i c
 
 ## video
 
+![a recording of the program](recording.mov)

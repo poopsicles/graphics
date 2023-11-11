@@ -1,4 +1,7 @@
-// extern crate sdl2;
+#![warn(clippy::pedantic)]
+#![warn(clippy::unwrap_used)]
+#![warn(clippy::nursery)]
+#![allow(clippy::too_many_lines)]
 
 use graph::{bresenham, dda};
 use hsl::HSL;
@@ -12,9 +15,17 @@ const fn convert_y(y: i32) -> i32 {
     -y + 600
 }
 
+/// This is the main running loop of the program
+///
+/// # Panics
+///
+/// This function will panic if, well, any number of a lot of things go wrong.
+/// Hopefully there's a cool message showing why.
 pub fn main() {
     let sdl_context = sdl2::init().expect("failed to initialise SDL");
-    let video_subsystem = sdl_context.video().expect("failed to initialise video subsystem");
+    let video_subsystem = sdl_context
+        .video()
+        .expect("failed to initialise video subsystem");
 
     let window = video_subsystem
         .window("CSC433 Assignment - DDA", 800, 600)
@@ -22,12 +33,17 @@ pub fn main() {
         .build()
         .expect("failed to create window");
 
-    let mut canvas = window.into_canvas().build().expect("failed to create canvas");
+    let mut canvas = window
+        .into_canvas()
+        .build()
+        .expect("failed to create canvas");
 
     canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
 
-    let mut event_pump = sdl_context.event_pump().expect("unable to obtain event pump");
+    let mut event_pump = sdl_context
+        .event_pump()
+        .expect("unable to obtain event pump");
 
     let dda_points = dda((100.0, 200.0), (500.0, 300.0));
     let bres_points = bresenham((100.0, 100.0), (200.0, 200.0));
@@ -47,7 +63,7 @@ pub fn main() {
     'run: loop {
         for i in (0..360).step_by(2) {
             let (r, g, b) = HSL::to_rgb(&HSL {
-                h: i as f64,
+                h: f64::from(i),
                 s: 1.0,
                 l: 0.5,
             });
@@ -61,23 +77,32 @@ pub fn main() {
                 canvas.set_draw_color(Color::RGB(50, 50, 50));
 
                 for x in (0..800).step_by(20) {
-                    canvas.draw_line((x, 0), (x, 600)).unwrap();
+                    canvas
+                        .draw_line((x, 0), (x, 600))
+                        .expect("failed to draw line");
                 }
 
                 for y in (0..600).step_by(20) {
-                    canvas.draw_line((0, y), (800, y)).unwrap();
+                    canvas
+                        .draw_line((0, y), (800, y))
+                        .expect("failed to draw line");
                 }
             } else {
                 canvas.set_draw_color(Color::RGB(0, 0, 0));
                 canvas.clear();
             }
-             
+
             // line
             canvas.set_draw_color(Color::RGB(r, g, b));
             for a in points {
-                canvas
-                    .draw_point(Point::new(a.0 as i32, convert_y(a.1 as i32)))
-                    .unwrap();
+                unsafe {
+                    canvas
+                        .draw_point(Point::new(
+                            a.0.to_int_unchecked(),
+                            convert_y(a.1.to_int_unchecked()),
+                        ))
+                        .expect("failed to draw point");
+                }
             }
 
             // update
@@ -127,7 +152,10 @@ pub fn main() {
                         }
                     }
 
-                    Event::KeyDown { keycode: Some(Keycode::G), .. } => {
+                    Event::KeyDown {
+                        keycode: Some(Keycode::G),
+                        ..
+                    } => {
                         is_graph = !is_graph;
                     }
 
