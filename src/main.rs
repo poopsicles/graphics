@@ -76,13 +76,13 @@ pub fn main() {
             if is_graph {
                 canvas.set_draw_color(Color::RGB(50, 50, 50));
 
-                for x in (0..800).step_by(20) {
+                for x in (0..=800).step_by(20) {
                     canvas
                         .draw_line((x, 0), (x, 600))
                         .expect("failed to draw line");
                 }
 
-                for y in (0..600).step_by(20) {
+                for y in (0..=600).step_by(20) {
                     canvas
                         .draw_line((0, y), (800, y))
                         .expect("failed to draw line");
@@ -156,7 +156,8 @@ pub fn main() {
                         keycode: Some(Keycode::G),
                         ..
                     } => {
-                        is_graph = !is_graph;
+                        is_graph
+                         = !is_graph;
                     }
 
                     _ => {}

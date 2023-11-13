@@ -3,8 +3,8 @@
 #![warn(clippy::nursery)]
 #![allow(non_snake_case)]
 #![allow(clippy::many_single_char_names)]
+#![allow(clippy::must_use_candidate)]
 
-#[must_use]
 pub fn dda(a: (f32, f32), b: (f32, f32)) -> Vec<(f32, f32)> {
     let Δx = b.0 - a.0;
     let Δy = b.1 - a.1;
@@ -20,16 +20,15 @@ pub fn dda(a: (f32, f32), b: (f32, f32)) -> Vec<(f32, f32)> {
         let x = f32::from(x);
 
         if m <= 1.0 {
-            r.push(((a.0 + x).round(), x.mul_add(m, a.1).round()));
+            r.push(((a.0 + x), x.mul_add(m, a.1).round()));
         } else {
-            r.push(((a.0 + x / m).round(), (a.1 + x).round()));
+            r.push(((a.0 + x / m).round(), (a.1 + x)));
         }
     });
 
     r
 }
 
-#[must_use]
 pub fn bresenham(a: (f32, f32), b: (f32, f32)) -> Vec<(f32, f32)> {
     let Δx = b.0 - a.0;
     let Δy = b.1 - a.1;
