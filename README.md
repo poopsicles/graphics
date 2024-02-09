@@ -14,4 +14,4 @@ also it's rainbow coloured because that's as much fun i could get out of it (i c
 
 ## video
 
-![a recording of the program](recording.mov)
+https://github.com/poopsicles/graphics/assets/87488715/1ebc6f0d-0668-4857-a128-e377fb316e55
